@@ -139,18 +139,18 @@ library(qcc)</code></pre>
 <h4>General summary of the three files:</h4>
 <pre class="r"><code>vc&lt;-VCorpus(DirSource(&quot;en_US&quot;,encoding = &quot;latin1&quot;))
 filename&lt;-c()
-number_of_characters&lt;-c()
+number_of_words&lt;-c()
 number_of_lines&lt;-c()
 for(i in 1:length(vc)){
   filename&lt;-c(filename,vc[[i]]$meta$id)
-  number_of_characters&lt;-c(number_of_characters,sum(nchar(vc[[i]]$content)))
+  number_of_words&lt;-c(number_of_words,wordcount(vc[[i]]$content))
   number_of_lines&lt;-c(number_of_lines,length(vc[[i]]$content))
 }
-data.frame(filename,number_of_characters,number_of_lines)</code></pre>
-<pre><code>##            filename number_of_characters number_of_lines
-## 1   en_US.blogs.txt            208361438          899288
-## 2    en_US.news.txt             15683765           77259
-## 3 en_US.twitter.txt            162384825         2360148</code></pre>
+data.frame(filename,number_of_words,number_of_lines)</code></pre>
+<pre><code>##            filename number_of_words number_of_lines
+## 1   en_US.blogs.txt        37334131          899288
+## 2    en_US.news.txt         2643969           77259
+## 3 en_US.twitter.txt        30373543         2360148</code></pre>
 </div>
 <div id="preprocess-the-files" class="section level4">
 <h4>Preprocess the files:</h4>
