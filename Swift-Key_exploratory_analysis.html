@@ -132,7 +132,8 @@ library(tm)
 library(corpus)
 library(ngram)
 library(dplyr)
-library(qcc)</code></pre>
+library(qcc)
+library(tidyr)</code></pre>
 <div id="reading-data-and-pre-process-data" class="section level2">
 <h2>Reading data and Pre-process data</h2>
 <div id="general-summary-of-the-three-files" class="section level4">
@@ -291,37 +292,50 @@ data.frame(Type,Coverage_50percent,Coverage_90percent)</code></pre>
 <p>Data Model 1: Build a dictionary consisit of 90% coverage of Twogram terms and 90% coverage of Singlegram terms.</p>
 <pre class="r"><code>Dictionary_1&lt;-filter(Twogram,frequencyranking %in% c(&quot;Top30K&quot;,&quot;30K-200K&quot;,&quot;200K-800K&quot;,&quot;800K-2M&quot;,&quot;2M-4M&quot;))
 Dictionary_1$Category&lt;-rep(&quot;Twogram&quot;,nrow(Dictionary_1))
+Dictionary_1&lt;-separate(Dictionary_1,term,c(&quot;FirstGram&quot;,&quot;SecondGram&quot;,&quot;PredictWord&quot;),&quot; &quot;,FALSE)
+Dictionary_1$Score&lt;-Dictionary_1$count+Dictionary_1$support*1.5
+
 Temp&lt;-filter(Singlegram,frequencyranking %in% c(&quot;Top2k&quot;,&quot;2K-20k&quot;,&quot;20K-100K&quot;,&quot;100K-500K&quot;,&quot;500K-1M&quot;))
 Temp$Category&lt;-rep(&quot;Singlegram&quot;,nrow(Temp))
+Temp&lt;-separate(Temp,term,c(&quot;FirstGram&quot;,&quot;PredictWord&quot;),&quot; &quot;,FALSE)
+Temp$Score&lt;-Temp$count+Temp$support*1.5
+
 Dictionary_1&lt;-rbind(Dictionary_1,Temp)
+
 write.csv(Dictionary_1,&quot;Dictionary_1&quot;)
 head(Dictionary_1)</code></pre>
-<pre><code>## # A tibble: 6 x 5
+<pre><code>## # A tibble: 6 x 9
 ## # Groups:   frequencyranking [1]
-##             term count support frequencyranking Category
-##            &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt;            &lt;chr&gt;    &lt;chr&gt;
-## 1 thanks for the 23718   23688           Top30K  Twogram
-## 2     one of the 21051   20424           Top30K  Twogram
-## 3       a lot of 19330   18393           Top30K  Twogram
-## 4        to be a 13202   12925           Top30K  Twogram
-## 5      i want to 13171   12458           Top30K  Twogram
-## 6    going to be 12709   12348           Top30K  Twogram</code></pre>
+##             term FirstGram SecondGram PredictWord count support
+##            &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 thanks for the    thanks        for         the 23718   23688
+## 2     one of the       one         of         the 21051   20424
+## 3       a lot of         a        lot          of 19330   18393
+## 4        to be a        to         be           a 13202   12925
+## 5      i want to         i       want          to 13171   12458
+## 6    going to be     going         to          be 12709   12348
+## # ... with 3 more variables: frequencyranking &lt;chr&gt;, Category &lt;chr&gt;,
+## #   Score &lt;dbl&gt;</code></pre>
 <p>Data Model 2: Build a dictionary cosisit of 50% coverage of Twogram terms and 90% coverage of Singlegram terms</p>
 <pre class="r"><code>Dictionary_2&lt;-filter(Twogram,frequencyranking %in% c(&quot;Top30K&quot;,&quot;30K-200K&quot;))
 Dictionary_2$Category&lt;-rep(&quot;Twogram&quot;,nrow(Dictionary_2))
+Dictionary_2&lt;-separate(Dictionary_2,term,c(&quot;FirstGram&quot;,&quot;SecondGram&quot;,&quot;PredictWord&quot;),&quot; &quot;,FALSE)
+Dictionary_2$Score&lt;-Dictionary_2$count+Dictionary_2$support*1.5
 Dictionary_2&lt;-rbind(Dictionary_2,Temp)
 write.csv(Dictionary_2,&quot;Dictionary_2&quot;)
 head(Dictionary_2)</code></pre>
-<pre><code>## # A tibble: 6 x 5
+<pre><code>## # A tibble: 6 x 9
 ## # Groups:   frequencyranking [1]
-##             term count support frequencyranking Category
-##            &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt;            &lt;chr&gt;    &lt;chr&gt;
-## 1 thanks for the 23718   23688           Top30K  Twogram
-## 2     one of the 21051   20424           Top30K  Twogram
-## 3       a lot of 19330   18393           Top30K  Twogram
-## 4        to be a 13202   12925           Top30K  Twogram
-## 5      i want to 13171   12458           Top30K  Twogram
-## 6    going to be 12709   12348           Top30K  Twogram</code></pre>
+##             term FirstGram SecondGram PredictWord count support
+##            &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 thanks for the    thanks        for         the 23718   23688
+## 2     one of the       one         of         the 21051   20424
+## 3       a lot of         a        lot          of 19330   18393
+## 4        to be a        to         be           a 13202   12925
+## 5      i want to         i       want          to 13171   12458
+## 6    going to be     going         to          be 12709   12348
+## # ... with 3 more variables: frequencyranking &lt;chr&gt;, Category &lt;chr&gt;,
+## #   Score &lt;dbl&gt;</code></pre>
 <p>After the prediction model built, we will compare the efficiency and accuracy of the two dictionaries.</p>
 </div>
 
